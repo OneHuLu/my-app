@@ -1,10 +1,9 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 
-export default function homeIndex() {
+const homeIndex = (props:any) =>  {
   return (
-    <div>
-      <Link to='/login'>home</Link>
-    </div>
-  )
+      <div>home</div>
+  );
 }
+
+export default homeIndex;
