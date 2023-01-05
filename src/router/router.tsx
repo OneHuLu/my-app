@@ -1,4 +1,4 @@
-import { Route, useRoutes } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { IRoute } from "./type";
 
 // 登录相关路由

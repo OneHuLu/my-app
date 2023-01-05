@@ -1,20 +1,14 @@
 import React, { useState } from "react";
-import "./App.css";
-
 import { Link, Routes } from "react-router-dom";
 import Routers from "./router/router";
 
 // 菜单处理
-import { Breadcrumb, Layout, Menu, theme, MenuProps } from "antd";
+import { Layout, Menu, MenuProps } from "antd";
 
 // 图标
-import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { DesktopOutlined, PieChartOutlined } from "@ant-design/icons";
+
+import "./App.css";
 
 const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>["items"][number];
@@ -44,9 +38,7 @@ const items: MenuItem[] = [
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+
   return (
     <div className="App">
       <Layout style={{ minHeight: "100vh" }}>
@@ -77,13 +69,13 @@ function App() {
           </Menu>
         </Sider>
         <Layout className="site-layout">
-          <Header style={{ padding: 0, background: colorBgContainer }} />
+          <Header style={{ padding: 0,background:'#f0f2f5' }} />
           <Content style={{ margin: "0 16px" }}>
             <div
               style={{
                 padding: 24,
                 minHeight: 360,
-                background: colorBgContainer,
+                background: "#f0f2f5",
               }}
             >
               <Routes>

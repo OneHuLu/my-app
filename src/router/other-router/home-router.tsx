@@ -1,4 +1,3 @@
-import { lazy } from "react";
 import { IRoute } from "../type";
 import Home from "../../home";
 const HomeRouter: IRoute[] = [
