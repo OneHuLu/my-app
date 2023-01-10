@@ -45,7 +45,9 @@ function App() {
         <Sider
           collapsible
           collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
+          onCollapse={(value: boolean | ((prevState: boolean) => boolean)) =>
+            setCollapsed(value)
+          }
         >
           <div
             style={{
@@ -69,7 +71,7 @@ function App() {
           </Menu>
         </Sider>
         <Layout className="site-layout">
-          <Header style={{ padding: 0,background:'#f0f2f5' }} />
+          <Header style={{ padding: 0, background: "#f0f2f5" }} />
           <Content style={{ margin: "0 16px" }}>
             <div
               style={{
@@ -80,7 +82,7 @@ function App() {
             >
               <Routes>
                 {/* 路由节点挂载 */}
-                {allRouter.map((item) => item)}
+                {/* {allRouter.map((item) => item)} */}
               </Routes>
             </div>
           </Content>

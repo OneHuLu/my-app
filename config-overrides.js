@@ -1,55 +1,94 @@
-const { override, fixBabelImports, addWebpackPlugin, addLessLoader, addWebpackAlias, addWebpackExternals } = require('customize-cra');
-const path = require('path');
-const  UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const { override, addLessLoader, addWebpackAlias } = require("customize-cra");
 
-module.exports = override(
- fixBabelImports(
-   "import",
-    {
-   "libraryName": "antd",
-      "libraryDirectory": "es",
-      "style": "css"
+// const fs = require('fs')
+
+const path = require("path");
+
+const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
+
+/**
+ * @param target: 要遍历的对象
+ * @param name: 插件名
+ * @param callback: 回调函数，第一个参数为该插件对象
+ * @return null
+ */
+function invade(target, name, callback) {
+  target.forEach((item) => {
+    if (item.constructor.name === name) {
+      callback(item);
+    }
+  });
+}
+
+function resolve(dir) {
+  return path.join(__dirname, dir);
+}
+
+module.exports = {
+  paths: function (paths) {
+    paths.appBuild = resolve("./dist");
+    return paths;
+  },
+  webpack: override(
+    addWebpackAlias({
+      "@": resolve("src"),
+    }),
+    addLessLoader({
+      additionalData: `@import "${resolve("./src/assets/css/variable.less")}";`,
+    }),
+
+    (config) => {
+      if (process.env.NODE_ENV === "production") {
+        config.devtool = false;
+
+        config.output.chunkFilename = config.output.chunkFilename.replace(
+          ".chunk",
+          ""
+        );
+
+        invade(config.optimization.minimizer, "TerserPlugin", (e) => {
+          e.options.extractComments = false;
+          e.options.terserOptions.compress.drop_console = true;
+        });
+        invade(config.plugins, "MiniCssExtractPlugin", (e) => {
+          e.options.chunkFilename = e.options.chunkFilename.replace(
+            ".chunk",
+            ""
+          );
+        });
+
+        config.optimization.splitChunks = {
+          chunks: "all",
+          cacheGroups: {
+            libs: {
+              name: "chunk-libs",
+              test: /[\\/]node_modules[\\/]/,
+              priority: 10,
+              chunks: "initial", // only package third parties that are initially dependent
+            },
+            commons: {
+              name: "chunk-commons",
+              test: resolve("src/components"), // can customize your rules
+              minChunks: 3, //  minimum common number
+              priority: 5,
+              reuseExistingChunk: true,
+            },
+          },
+        };
+
+        config.plugins.push(
+          new ScriptExtHtmlWebpackPlugin({
+            // `runtime` must same as runtimeChunk name. default is `runtime`
+            inline: /runtime\..*\.js$/,
+          })
+        );
+
+        config.optimization.runtimeChunk = "single";
+      }
+
+      // fs.writeFileSync(`./config-${process.env.NODE_ENV}.json`, JSON.stringify(config))
+
+      return config;
     }
   ),
-  addLessLoader({
-  // 这里可以添加less的其他配置
-  lessOptions: {
-     // 根据自己需要配置即可~
-    }
- }),
-  // alias
- addWebpackAlias({
-    // 加载模块的时候，可以使用“@”符号来进行简写啦~
-    '@': path.resolve(__dirname, './src/')
-  }),
-  // externals
-  addWebpackExternals({
-    // 注意对应的在public/index.html引入jquery的远程文件地址
-    "jQuery": "jQuery"
-  }),
-  // 注意是production环境启动该plugin
- process.env.NODE_ENV === 'production' && addWebpackPlugin(
-   new UglifyJsPlugin({
-    // 开启打包缓存
-    cache: true,
-    // 开启多线程打包
-    parallel: true,
-    uglifyOptions: {
-     // 删除警告
-     warnings: false,
-     // 压缩
-     compress: {
-      // 移除console
-      drop_console: true,
-      // 移除debugger
-      drop_debugger: true
-     }
-    }
-   })
-  ),
-  // 判断环境变量ANALYZER参数的值
- process.env.ANALYZER && addWebpackPlugin(new BundleAnalyzerPlugin()),
-  addWebpackPlugin(new ProgressBarPlugin())
-)
+};
